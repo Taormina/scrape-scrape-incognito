@@ -20,13 +20,7 @@ app.get("/test/stock", function(req, res){
 app.post("/test/stock",function(req,res){
   getStockData(req.body["symbol"], function(stock){
     var prettyString = JSON.stringify(stock, undefined, '\t');
-    var aList = prettyString.split(",");
     console.log(prettyString);
-    var finalString;
-    for(var i = 0; i<aList.length; i++){
-      finalString+= aList[i];
-      finalString+= "</br>";
-    }
     res.render("test_stock_result", {result : stock, pretty : prettyString});
   });
 });

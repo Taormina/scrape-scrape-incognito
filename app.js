@@ -20,14 +20,14 @@ app.get("/test/stock", function(req, res){
 app.post("/test/stock",function(req,res){
   getStockData(req.body["symbol"], function(stock){
     var prettyString = JSON.stringify(stock, undefined, '\t');
-    console.log(prettyString);
+//    console.log(prettyString);
     res.render("test_stock_result", {result : stock, pretty : prettyString});
   });
 });
 
 app.get("/api/stock/:symbol", function(req,res){
   getStockData(req.params['symbol'], function(stock){  
-    console.log(stock);
+//    console.log(stock);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.write(JSON.stringify(stock));
     res.end();
@@ -36,7 +36,7 @@ app.get("/api/stock/:symbol", function(req,res){
 
 
 function getStockData(symbol, callback){
-  console.log(symbol);
+//  console.log(symbol);
   new yql.exec("select * from yahoo.finance.quote where (symbol = @symbol)", function(yqlResponse){
     callback(yqlResponse.query.results.quote);
   }

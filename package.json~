@@ -1,11 +1,10 @@
 {
-  "name": "my-project",
+  "name": "stocks",
   "version": "0.0.1",
-  "description": "a node project for stuff",
+  "description": "CS3300 project",
   "dependencies": {
     "express": "3.x",
     "ejs":"*",
-    "mongodb":"1.x",
-    "xml-writer":"*"
+    "yql":"*"   
   }
 }

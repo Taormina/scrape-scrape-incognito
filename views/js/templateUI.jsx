@@ -14,7 +14,7 @@ var navbar = React.createClass({
           <a class="brand" href="/">Stock Scrapper</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
-              <li><a href="/">Test API</a></li>
+              <li><a href="/test/stock">Test API</a></li>
             </ul>
           </div>
         </div>

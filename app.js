@@ -25,8 +25,8 @@ app.post("/test/stock",function(req,res){
   });
 });
 
-app.get("/api/stock/:symbol", function(req,res){
-  getStockData(req.params['symbol'], function(stock){  
+app.get("/api/stock/:symbol", function(req, res){
+  getStockData(req.params['symbol'], "*", function(stock){  
 //    console.log(stock);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.write(JSON.stringify(stock));
@@ -34,10 +34,18 @@ app.get("/api/stock/:symbol", function(req,res){
   });
 });
 
+app.get("/api/stock/:symbol/:field", function(req, res){
+	getStockData(req.params['symbol'], req.params['field'], function(stock) {
+		console.log(stock);
+		res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.write(JSON.stringify(stock));
+    res.end();
+  });
+});
 
-function getStockData(symbol, callback){
+function getStockData(symbol, field, callback){
 //  console.log(symbol);
-  new yql.exec("select * from yahoo.finance.quote where (symbol = @symbol)", function(yqlResponse){
+  new yql.exec("select " + field + " from yahoo.finance.quote where (symbol = @symbol)", function(yqlResponse){
     callback(yqlResponse.query.results.quote);
   }
 , {"symbol": symbol})

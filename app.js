@@ -18,7 +18,7 @@ app.get("/test/stock", function(req, res){
 });
 
 app.post("/test/stock",function(req,res){
-  getStockData(req.body["symbol"], function(stock){
+  getStockData(req.body["symbol"], "*",  function(stock){
     var prettyString = JSON.stringify(stock, undefined, '\t');
 //    console.log(prettyString);
     res.render("test_stock_result", {result : stock, pretty : prettyString});

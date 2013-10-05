@@ -46,7 +46,8 @@ app.get("/api/stock/:symbol/:field", function(req, res){
 function getStockData(symbol, field, callback){
 //  console.log(symbol);
   new yql.exec("select " + field + " from yahoo.finance.quote where (symbol = @symbol)", function(yqlResponse){
-    callback(yqlResponse.query.results.quote);
+  	if (yqlResponse.query.results != null)
+			callback(yqlResponse.query.results.quote);
   }
 , {"symbol": symbol})
 }

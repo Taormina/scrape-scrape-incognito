@@ -1,0 +1,7 @@
+Documentation for Middleware
+
+Functions:
+
+getStockData(symbol, field, callback):
+Returns the data assosciated with a specific symbol.
+

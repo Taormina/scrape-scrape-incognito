@@ -24,11 +24,16 @@ Each GET request returns a JSON object containing the relevant information that 
 Possible GET requests:
 ----------------------
 
-get("/api/stock/:symbol"):
-Input the desired stock symbol (MSFT, SALE).
+get("/api/stockbysymbol/:symbol"):
+Input the desired stock symbol(s): "MSFT, SALE".
 
-get("/api/stock/:symbol/:field"):
-Input the symbol and field you want ("AverageDailyVolume", "Change", "YearLow").
+get("/api/stockbysymbol/:symbol/:field"):
+Input the symbol and field you want: "AverageDailyVolume", "Change", "YearLow".
+
+get("api/stockbyname/:name"):
+Input the name (or part of the name) of the company.
 
 get("/api/history/:symbol/:startDate/:endDate"):
-Input the symbol and the date range you're looking for.
+Input the symbol and the date range you're looking for. Denote dates with "MM-DD-YYYY"
+
+

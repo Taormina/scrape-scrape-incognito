@@ -56,7 +56,7 @@ app.get("/api/stockbyname/:name", function(req, res){
   });
 });
 
-app.get("/api/stock/:symbol/:field", function(req, res){
+app.get("/api/stockbysymbol/:symbol/:field", function(req, res){
 	getStockBySymbol(req.params['symbol'], req.params['field'], function(stock) {
 		console.log(stock);
 		res.writeHead(200, { 'Content-Type': 'application/json' });

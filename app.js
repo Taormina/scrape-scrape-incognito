@@ -48,8 +48,10 @@ app.get("/api/stockbysymbol/:symbol", function(req, res){
 
 app.get("/api/stockbyname/:name", function(req, res){
   var symbols = symbolsContainingName(req.params['name']).join();
+  if (symbols.length == 0)
+	symbols = ["null"]
   getStockBySymbol(symbols, "*", function(stock){  
-//    console.log(stock);
+    //console.log(stock);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.write(JSON.stringify(stock));
     res.end();

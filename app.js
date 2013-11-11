@@ -1,3 +1,4 @@
+var cache = require('./cache.js');
 var port = process.env.PORT || 5000, express = require("express"),
     app = express(), yql = require("yql"), fs = require("fs");
 var nameList = [];
@@ -17,8 +18,8 @@ function init(){
       nameList.push([pair[1],pair[0]]);
     }
   }
+	cache.init(0,0);
 }
-
 
 // Homepage
 app.get("/", function(req, res){	
@@ -47,10 +48,15 @@ app.get("/api/stockbysymbol/:symbol", function(req, res){
 });
 
 app.get("/api/stockbyname/:name", function(req, res){
-  var symbols = symbolsContainingName(req.params['name']).join();
+  var symbols = symbolsContainingName(req.params['name']);
   if (symbols.length == 0)
-	symbols = ["null"]
-  getStockBySymbol(symbols, "*", function(stock){  
+		symbols = ["null"]
+	
+	var func = getStocksBySymbol;
+	if (symbols.length == 1)
+			func = getStockBySymbol;
+
+	func(symbols, "*", function(stock){  
     //console.log(stock);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.write(JSON.stringify(stock));
@@ -60,7 +66,7 @@ app.get("/api/stockbyname/:name", function(req, res){
 
 app.get("/api/stockbysymbol/:symbol/:field", function(req, res){
 	getStockBySymbol(req.params['symbol'], req.params['field'], function(stock) {
-		console.log(stock);
+		//console.log(stock);
 		res.writeHead(200, { 'Content-Type': 'application/json' });
     res.write(JSON.stringify(stock));
     res.end();
@@ -76,34 +82,57 @@ app.get("/api/history/:symbol/:startDate/:endDate", function(req, res){
   });
 });
 
-app.get("/api/pricerange/:lowest/:hightest", function(req, res){
-//	TODO: integrate with API so that this function can be created
-//	Right now this will just return the stock data for all stocks with "micro" in their names
-	var symbols = symbolsContainingName("micro").join();
-	getStockBySymbol(symbols, "*", function(stock){  
-	//console.log(stock);
+app.get("/api/pricerange/:lowest/:highest", function(req, res){
+	var symbols = symbolsInRange(req.params['lowest'], req.params['highest']);
 	res.writeHead(200, { 'Content-Type': 'application/json' });
-	res.write(JSON.stringify(stock));
+	res.write(JSON.stringify(symbols));
 	res.end();
-	});
 });
 
 function getStockBySymbol(symbol, field, callback){
 //  console.log(symbol);
   new yql.exec("select " + field + " from yahoo.finance.quote where (symbol = @symbol)", function(yqlResponse){
   	if (yqlResponse.query.results != null)
-			callback(yqlResponse.query.results.quote);
-  }
-, {"symbol": symbol})
+    	callback(yqlResponse.query.results.quote);
+  } , {"symbol": symbol})
+}
+
+function getStocksBySymbol(symbols, field, callback){
+	var quotes = [];
+	var misses = [];
+	console.log(symbols);
+	
+	for (index = 0; index < symbols.length; ++index) {
+		var value = cache.get(symbols[index]);
+		if (value == null) {
+			misses.push(symbols[index]);
+		} else {
+			quotes.push(value);
+		}
+	}
+
+	console.log(misses.join());
+	if (misses.length > 0) {	
+		new yql.exec("select " + field + " from yahoo.finance.quote where (symbol = @symbol)", function(yqlResponse){
+  		if (yqlResponse.query.results != null) {
+				var quote = yqlResponse.query.results.quote;
+				quotes = quotes.concat(quote);
+				for (index = 0; index < quote.length; ++index) {
+					cache.put(quote[index].symbol, quote[index]);
+				}
+				callback(quotes);
+			}
+		} , {"symbol": misses.join()})
+	}
 }
 
 function getStockHistory(symbol, field, startDate, endDate, callback){
 //  console.log(symbol);
-  new yql.exec("select " + field + " from yahoo.finance.historicaldata where (symbol = @symbol) and (startDate = @startDate) and (endDate = @endDate)", function(yqlResponse){
-  	if (yqlResponse.query.results != null)
-			callback(yqlResponse.query.results);
-  }
-, {"symbol": symbol, "startDate": startDate, "endDate": endDate})
+	new yql.exec("select " + field + " from yahoo.finance.historicaldata where (symbol = @symbol) and (startDate = @startDate) and (endDate = @endDate)", function(yqlResponse){
+ 	if (yqlResponse.query.results != null) 
+		callback(yqlResponse.query.results.quote);
+	}
+	, {"symbol": symbol, "startDate": startDate, "endDate": endDate})
 }
 
 function symbolsContainingName(str){
@@ -117,6 +146,10 @@ function symbolsContainingName(str){
     }
   }
   return results;
+}
+
+function symbolsInRange(lowest, highest){
+	return cache.range(lowest, highest);
 }
 
 init();

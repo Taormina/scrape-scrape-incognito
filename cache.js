@@ -1,9 +1,8 @@
-
 /** Cache Init
  * @param maxsize	The maximum size of the cache; 0 means no max size.
  * @param timeout The timeout for items in the cache to be invalidated; 0 means no timeout
  */
-function init(_maxsize, _timeout) {
+exports.init = function (_maxsize, _timeout) {
 	maxsize = _maxsize;
 	timeout = _timeout;
 	cache = {};
@@ -16,10 +15,10 @@ function init(_maxsize, _timeout) {
 /** Cache Put
  * @param key 		The key to be used for the cache entry
  * @param value 	The value to be associated with the given key
- * @return fales	If cache is not initialized
+ * @return false	If cache is not initialized
  * @return 1			If entry is succesfully put into cache
  */
-function put(key, value) {
+exports.put = function (key, value) {
 	if (!initialized)
 		return false;
 
@@ -61,7 +60,7 @@ function put(key, value) {
  * @return null 	If cache entry is past the timeout
  * @return value 	Value associated with the cache (this might return null if you ask for something that isn't there)
  */
-function get(key) {
+exports.get = function (key) {
 	if (!initialized)
 		return false;
 
@@ -74,4 +73,19 @@ function get(key) {
 	// Update timestamp
 	used[key] = d.getTime();
 	return cache[key];
+}
+
+exports.range = function (lowest, highest) {
+	if (!initialized)
+		return false;
+
+	var stocks = [];
+
+	for (var key in cache) {
+		var quote = cache[key];
+		if (quote.LastTradePriceOnly > lowest && quote.LastTradePriceOnly > highest) {
+			stocks.push(quote);
+		}
+	}
+	return stocks;
 }

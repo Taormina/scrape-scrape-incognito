@@ -76,6 +76,18 @@ app.get("/api/history/:symbol/:startDate/:endDate", function(req, res){
   });
 });
 
+app.get("/api/pricerange/:lowest/:hightest", function(req, res){
+//	TODO: integrate with API so that this function can be created
+//	Right now this will just return the stock data for all stocks with "micro" in their names
+	var symbols = symbolsContainingName("micro").join();
+	getStockBySymbol(symbols, "*", function(stock){  
+	//console.log(stock);
+	res.writeHead(200, { 'Content-Type': 'application/json' });
+	res.write(JSON.stringify(stock));
+	res.end();
+	});
+});
+
 function getStockBySymbol(symbol, field, callback){
 //  console.log(symbol);
   new yql.exec("select " + field + " from yahoo.finance.quote where (symbol = @symbol)", function(yqlResponse){

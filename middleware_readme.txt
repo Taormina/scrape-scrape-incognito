@@ -34,6 +34,9 @@ get("api/stockbyname/:name"):
 Input the name (or part of the name) of the company.
 
 get("/api/history/:symbol/:startDate/:endDate"):
-Input the symbol and the date range you're looking for. Denote dates with "MM-DD-YYYY"
+Input the symbol and the date range you're looking for. Denote dates with "YYYY-MM-DD"
 
-
+get("/api/pricerange/:lowest/:hightest")
+Input the lowest and highest stock price to search. 
+NOTE: This does not actually return correct data... Right now this will just return the stock data for all stocks with "micro" in their company names
+It's not the correct data, but it's in the correct format.

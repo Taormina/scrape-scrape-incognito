@@ -2,6 +2,23 @@ var cache = require('./cache.js');
 var port = process.env.PORT || 5000, express = require("express"),
     app = express(), yql = require("yql"), fs = require("fs");
 var nameList = [];
+var thingsarentbroken = false;
+var dummyData = {
+    "symbol": "YHOO",
+    "AverageDailyVolume": "18844300",
+    "Change": "-0.32",
+    "DaysLow": "35.31",
+    "DaysHigh": "35.94",
+    "YearLow": "17.76",
+    "YearHigh": "35.89",
+    "MarketCapitalization": "36.845B",
+    "LastTradePriceOnly": "35.37",
+    "DaysRange": "35.31 - 35.94",
+    "Name": "Yahoo! Inc.",
+    "Symbol": "YHOO",
+    "Volume": "9429977",
+    "StockExchange": "NasdaqNM"
+   }
 
 app.set("view engine", "ejs");
 app.use(express.bodyParser());
@@ -39,15 +56,19 @@ app.post("/test/stock",function(req,res){
 });
 
 app.get("/api/stockbysymbol/:symbol", function(req, res){
+  if(thingsarentbroken){
   getStockBySymbol(req.params['symbol'], "*", function(stock){  
 //    console.log(stock);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.write(JSON.stringify(stock));
     res.end();
-  });
+  });}
+  else
+	datDummyData(res);
 });
 
 app.get("/api/stockbyname/:name", function(req, res){
+  if(thingsarentbroken){
   var symbols = symbolsContainingName(req.params['name']);
   if (symbols.length == 0)
 		symbols = ["null"]
@@ -61,32 +82,44 @@ app.get("/api/stockbyname/:name", function(req, res){
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.write(JSON.stringify(stock));
     res.end();
-  });
+  });}
+  else
+	datDummyData(res);
 });
 
 app.get("/api/stockbysymbol/:symbol/:field", function(req, res){
+	if(thingsarentbroken){
 	getStockBySymbol(req.params['symbol'], req.params['field'], function(stock) {
 		//console.log(stock);
 		res.writeHead(200, { 'Content-Type': 'application/json' });
     res.write(JSON.stringify(stock));
     res.end();
-  });
+  });}
+  else
+	datDummyData(res);
 });
 
 app.get("/api/history/:symbol/:startDate/:endDate", function(req, res){
+  if(thingsarentbroken){
   getStockHistory(req.params['symbol'], "*", req.params['startDate'], req.params['endDate'], function(stock){  
 //    console.log(stock);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.write(JSON.stringify(stock));
     res.end();
-  });
+  });}
+  else
+	datDummyData(res);
 });
 
 app.get("/api/pricerange/:lowest/:highest", function(req, res){
+	if(thingsarentbroken){
 	var symbols = symbolsInRange(req.params['lowest'], req.params['highest']);
 	res.writeHead(200, { 'Content-Type': 'application/json' });
 	res.write(JSON.stringify(symbols));
 	res.end();
+	}
+	else
+		datDummyData(res);
 });
 
 function getStockBySymbol(symbol, field, callback){
@@ -152,6 +185,12 @@ function symbolsContainingName(str){
 
 function symbolsInRange(lowest, highest){
 	return cache.range(lowest, highest);
+}
+
+function datDummyData(res){
+	res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.write(JSON.stringify(dummyData));
+    res.end();
 }
 
 init();

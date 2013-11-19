@@ -2,7 +2,7 @@ var cache = require('./cache.js');
 var port = process.env.PORT || 5000, express = require("express"),
     app = express(), yql = require("yql"), fs = require("fs");
 var nameList = [];
-var thingsarentbroken = false;
+var thingsarentbroken = true;
 var dummyData = {
     "symbol": "YHOO",
     "AverageDailyVolume": "18844300",

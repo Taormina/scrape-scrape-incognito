@@ -146,8 +146,9 @@ function getStocksBySymbol(symbols, field, callback){
 
 	//console.log(misses.join());
 	if (misses.length > 0) {	
-		new yql.exec("select " + field + " from yahoo.finance.quote where (symbol = @symbol)", function(yqlResponse){
+		new yql.exec("select " + field + " from yahoo.finance.quote(0,200) where (symbol = @symbol)", function(yqlResponse){
   		if (yqlResponse.query.results != null) {
+				console.log(yqlResponse.query.count);
 				var quote = yqlResponse.query.results.quote;
 				quotes = quotes.concat(quote);
 				for (index = 0; index < quote.length; ++index) {
@@ -155,8 +156,8 @@ function getStocksBySymbol(symbols, field, callback){
 				}
 				callback(quotes);
 			}
-		} , {"symbol": misses.join()})
-	} else {
+		} , {"symbol": misses.slice(0,200).join(",")})
+	}	else {
 		callback(quotes);
 	}
 }

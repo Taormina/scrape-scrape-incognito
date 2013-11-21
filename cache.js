@@ -83,7 +83,7 @@ exports.range = function (lowest, highest) {
 
 	for (var key in cache) {
 		var quote = cache[key];
-		if (quote.LastTradePriceOnly > lowest && quote.LastTradePriceOnly > highest) {
+		if (lowest <= quote.LastTradePriceOnly && quote.LastTradePriceOnly <= highest) {
 			stocks.push(quote);
 		}
 	}

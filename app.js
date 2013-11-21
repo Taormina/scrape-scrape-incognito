@@ -124,10 +124,17 @@ app.get("/api/pricerange/:lowest/:highest", function(req, res){
 
 function getStockBySymbol(symbol, field, callback){
 //  console.log(symbol);
-  new yql.exec("select " + field + " from yahoo.finance.quote where (symbol = @symbol)", function(yqlResponse){
-  	if (yqlResponse.query.results != null)
-    	callback(yqlResponse.query.results.quote);
-  } , {"symbol": symbol})
+	var value = cache.get(symbol);
+	if (value == null) {
+	  new yql.exec("select " + field + " from yahoo.finance.quote where (symbol = @symbol)", function(yqlResponse){
+	  	if (yqlResponse.query.results != null) {
+				cache.put(symbol, yqlResponse.query.results.quote);
+  	  	callback(yqlResponse.query.results.quote);
+			}
+	  } , {"symbol": symbol})
+	} else {
+		callback(value);
+	}
 }
 
 function getStocksBySymbol(symbols, field, callback){
@@ -146,9 +153,9 @@ function getStocksBySymbol(symbols, field, callback){
 
 	//console.log(misses.join());
 	if (misses.length > 0) {	
-		new yql.exec("select " + field + " from yahoo.finance.quote(0,200) where (symbol = @symbol)", function(yqlResponse){
+		new yql.exec("select " + field + " from yahoo.finance.quote where (symbol = @symbol)", function(yqlResponse){
   		if (yqlResponse.query.results != null) {
-				console.log(yqlResponse.query.count);
+				//console.log(yqlResponse.query.count);
 				var quote = yqlResponse.query.results.quote;
 				quotes = quotes.concat(quote);
 				for (index = 0; index < quote.length; ++index) {
@@ -185,7 +192,7 @@ function symbolsContainingName(str){
 }
 
 function symbolsInRange(lowest, highest){
-	return cache.range(lowest, highest);
+	return cache.range(lowest*1.0, highest*1.0);
 }
 
 function datDummyData(res){
@@ -197,3 +204,15 @@ function datDummyData(res){
 init();
 app.listen(port);
 console.log("App started...");
+
+if (thingsarentbroken) {
+	var symbols = symbolsContainingName(".*");
+	var numFinished = 0;
+	for (var i = 0; i <= symbols.length; i+=200) {
+		getStocksBySymbol(symbols.slice(i,i+200), "*", function(stock) {
+			if (++numFinished > symbols.length/200) {
+				console.log("Cache loaded...");
+			}
+	});}
+}
+
